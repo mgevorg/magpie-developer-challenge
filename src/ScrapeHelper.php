@@ -9,7 +9,7 @@ class ScrapeHelper
 {
     public static function fetchDocument(string $url): Crawler
     {
-        $client = new Client();
+        $client = new Client(['verify' => false]);
 
         $response = $client->get($url);
 
