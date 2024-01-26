@@ -9,8 +9,7 @@ class ScrapeHelper
 {
     public static function fetchDocument(string $url): Crawler
     {
-        $client = new Client(['verify' => false]);
-
+        $client = new Client(['verify' => boolval($_ENV['CLIENT_VERIFY'])]);
         $response = $client->get($url);
 
         return new Crawler($response->getBody()->getContents(), $url);

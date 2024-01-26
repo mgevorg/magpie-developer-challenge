@@ -3,6 +3,7 @@
 namespace App;
 
 require 'vendor/autoload.php';
+require 'helpers.php';
 
 class Scrape
 {
@@ -10,8 +11,7 @@ class Scrape
 
     public function run(): void
     {
-        $document = ScrapeHelper::fetchDocument('https://www.magpiehq.com/developer-challenge/smartphones');
-
+        $crawlerDocument = ScrapeHelper::fetchDocument($_ENV['SCRAPE_URL']);
         file_put_contents('output.json', json_encode($this->products));
     }
 }
