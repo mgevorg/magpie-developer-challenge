@@ -4,20 +4,20 @@ namespace App;
 
 class Product
 {
-    public $capacity;
-    public $title;
-    public $price;
-    public $image;
-    public $availability;
-    public $shippingText;
-    public $colours;
+    public string $capacity;
+    public string $title;
+    public float $price;
+    public string $imageUrl;
+    public string $availability;
+    public string $shippingText;
+    public array $colours;
 
     public function __construct($capacity, $title, $price, $image, $availability, $shippingText, $colours)
     {
         $this->capacity = $capacity;
         $this->title = $title;
         $this->price = $price;
-        $this->image = $image;
+        $this->imageUrl = $image;
         $this->availability = $availability;
         $this->shippingText = $shippingText;
         $this->colours = $colours; 
@@ -62,11 +62,11 @@ class Product
 
     public function getImage()
     {
-        $this->image = stripslashes($this->image);
-        if (substr($this->image, 0, 3) === '../') {
-            $this->image = substr($this->image, 3);
+        $this->imageUrl = stripslashes($this->imageUrl);
+        if (substr($this->imageUrl, 0, 3) === '../') {
+            $this->imageUrl = substr($this->imageUrl, 3);
         }
         
-        return $_ENV['IMAGE_BASE_URL'] . $this->image;
+        return $_ENV['IMAGE_BASE_URL'] . $this->imageUrl;
     }
 }

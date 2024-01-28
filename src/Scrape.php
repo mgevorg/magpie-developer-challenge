@@ -49,23 +49,17 @@ class Scrape
 
             $product = new Product($capacity, $title, $price, $image, $availability, $shippingText, $colours);
 
-            $capacity = $product->getCapacityInMb();
-            $availabilityText = $product->getavailabilityText();
-            $isAvailable = $product->getIsAvailable();
-            $shippingDate = $product->getShippingDate();
-            $image = $product->getImage();
-
             foreach($colours as $colour) {
                 $result[] = [
                     'title' => $title,
-                    'price' => $price,
-                    'imageUrl' => $image,
-                    'capacityMB' => $capacity,
+                    'price' => (float) $price,
+                    'imageUrl' => $product->getImage(),
+                    'capacityMB' => $product->getCapacityInMb(),
                     'colour' => $colour,
-                    'availabilityText' => $availabilityText,
-                    'isAvailable' => $isAvailable,
+                    'availabilityText' => $product->getavailabilityText(),
+                    'isAvailable' => $product->getIsAvailable(),
                     'shippingText' => $shippingText,
-                    'shippingDate' => $shippingDate
+                    'shippingDate' => $product->getShippingDate()
                 ];
             }
         });
