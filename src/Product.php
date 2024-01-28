@@ -67,6 +67,6 @@ class Product
             $this->image = substr($this->image, 3);
         }
         
-        return "https://www.magpiehq.com/developer-challenge/" . $this->image;
+        return $_ENV['IMAGE_BASE_URL'] . $this->image;
     }
 }
