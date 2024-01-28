@@ -29,14 +29,12 @@ class Scrape
         }
     }
 
-    private function fetchPage($page = '')
+    private function fetchPage($page = '') : void
     {
         $this->scrapeUrl = preg_replace('/\?page=\d+$/', '', $this->scrapeUrl);
         $url = ($page == '') ? $this->scrapeUrl : $this->scrapeUrl . "?page={$page}";
         $crawlerDocument = ScrapeHelper::fetchDocument($url);
         $products = $crawlerDocument->filter('.product');
-
-        $result = [];
         
         $products->each(function (Crawler $product) use (&$result) {
             $capacity = $product->filter('.product-capacity')->text();
@@ -50,22 +48,42 @@ class Scrape
             $product = new Product($capacity, $title, $price, $image, $availability, $shippingText, $colours);
 
             foreach($colours as $colour) {
-                $result[] = [
-                    'title' => $title,
-                    'price' => (float) $price,
-                    'imageUrl' => $product->getImage(),
-                    'capacityMB' => $product->getCapacityInMb(),
-                    'colour' => $colour,
-                    'availabilityText' => $product->getavailabilityText(),
-                    'isAvailable' => $product->getIsAvailable(),
-                    'shippingText' => $shippingText,
-                    'shippingDate' => $product->getShippingDate()
-                ];
+                if(empty($this->products)) {
+                    $this->products[] = [
+                        'title' => $title,
+                        'price' => (float) $price,
+                        'imageUrl' => $product->getImage(),
+                        'capacityMB' => $product->getCapacityInMb(),
+                        'colour' => $colour,
+                        'availabilityText' => $product->getavailabilityText(),
+                        'isAvailable' => $product->getIsAvailable(),
+                        'shippingText' => $shippingText,
+                        'shippingDate' => $product->getShippingDate()
+                    ];
+                } else {
+                    $itemExists = false;
+                    foreach ($this->products as $item) {
+                        if ($item['title'] === $title && $item['colour'] === $colour && $item['capacityMB'] === $product->getCapacityInMb()) {
+                            $itemExists = true;
+                            break;
+                        }
+                    }
+                    if (!$itemExists) {
+                        $this->products[] = [
+                            'title' => $title,
+                            'price' => (float) $price,
+                            'imageUrl' => $product->getImage(),
+                            'capacityMB' => $product->getCapacityInMb(),
+                            'colour' => $colour,
+                            'availabilityText' => $product->getavailabilityText(),
+                            'isAvailable' => $product->getIsAvailable(),
+                            'shippingText' => $shippingText,
+                            'shippingDate' => $product->getShippingDate()
+                        ];
+                    }
+                }
             }
         });
-
-        return $result;
-
     }
 
     public function run(): void
@@ -73,19 +91,14 @@ class Scrape
         $crawledData = [];
         $this->setPages();
         if(sizeof($this->pages) < 2) { // '0' value: the page have a single page with no pagination at all, '1': the page could have other pages, but currently data is enough to fill only 1 page
-            $crawledProducts = $this->fetchPage();
-            $crawledData = array_unique($crawledProducts, SORT_REGULAR);
-            $crawledData = json_encode($crawledData, JSON_PRETTY_PRINT);
-            file_put_contents('output.json', $crawledData);
+            $this->fetchPage();
         } else {
             foreach ($this->pages as $page) {
-                $crawledProducts = $this->fetchPage($page);
-                $crawledData = array_merge($crawledData, $crawledProducts);
-                $crawledData = array_unique($crawledData, SORT_REGULAR);
+                $this->fetchPage($page);
             }
-            $crawledData = json_encode($crawledData, JSON_PRETTY_PRINT);
-            file_put_contents('output.json', $crawledData);
         }
+        $crawledData = json_encode($this->products, JSON_PRETTY_PRINT);
+        file_put_contents('output.json', $crawledData);
     }
 }
 

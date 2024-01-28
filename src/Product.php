@@ -27,7 +27,7 @@ class Product
     {
         if (preg_match('/^(\d+)\s*GB$/i', $this->capacity, $matches)) {
             $size = (int)$matches[1];
-            $size *= 1024;
+            $size *= 1000;
             return $size;
         } elseif (preg_match('/(\d+)\s?mb$/i', $this->capacity, $matches)) {
            return (int)$matches[1];
