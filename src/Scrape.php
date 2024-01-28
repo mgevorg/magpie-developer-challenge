@@ -48,7 +48,7 @@ class Scrape
             $colours = $product->filter('[data-colour]')->extract(['data-colour']);
 
             $product = new Product($capacity, $title, $price, $image, $availability, $shippingText, $colours);
-            
+
             $capacity = $product->getCapacityInMb();
             $availabilityText = $product->getavailabilityText();
             $isAvailable = $product->getIsAvailable();
@@ -80,13 +80,17 @@ class Scrape
         $this->setPages();
         if(sizeof($this->pages) < 2) { // '0' value: the page have a single page with no pagination at all, '1': the page could have other pages, but currently data is enough to fill only 1 page
             $crawledProducts = $this->fetchPage();
-            file_put_contents('output.json', json_encode($crawledProducts, JSON_PRETTY_PRINT));
+            $crawledData = array_unique($crawledProducts, SORT_REGULAR);
+            $crawledData = json_encode($crawledData, JSON_PRETTY_PRINT);
+            file_put_contents('output.json', $crawledData);
         } else {
             foreach ($this->pages as $page) {
                 $crawledProducts = $this->fetchPage($page);
                 $crawledData = array_merge($crawledData, $crawledProducts);
-                file_put_contents('output.json', json_encode($crawledData, JSON_PRETTY_PRINT));
+                $crawledData = array_unique($crawledData, SORT_REGULAR);
             }
+            $crawledData = json_encode($crawledData, JSON_PRETTY_PRINT);
+            file_put_contents('output.json', $crawledData);
         }
     }
 }
