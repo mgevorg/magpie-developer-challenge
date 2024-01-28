@@ -46,37 +46,14 @@ class Scrape
             $availability = $product->filter('.my-4.text-sm.block.text-center')->first()->text();
             $shippingText = $product->filter('.my-4.text-sm.block.text-center')->last()->text();
             $colours = $product->filter('[data-colour]')->extract(['data-colour']);
+
+            $product = new Product($capacity, $title, $price, $image, $availability, $shippingText, $colours);
             
-            if (preg_match('/^(\d+)\s*GB$/i', $capacity, $matches)) {
-                $size = (int)$matches[1];
-                $size *= 1024;
-                $capacity = $size;
-            } elseif (preg_match('/(\d+)\s?mb$/i', $capacity, $matches)) {
-                $capacity = (int)$matches[1];
-            } else {
-                $capacity = '';
-            }
-
-            $availabilityText = (str_contains($availability, 'In Stock')) ? 'In Stock' : (str_contains($availability, 'Out of Stock') ? 'Out of Stock' : 'Invalid Data');
-            $isAvailable = (str_contains($availability, 'In Stock')) ? true : false;
-
-            $patternwithDateSuffix = '~\b(\d{1,2}(st|nd|rd|th)\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4})\b~';
-            $patternwithoutDateSuffix = '~\b(\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4})\b~';
-
-            if (preg_match($patternwithDateSuffix, $shippingText, $matches) || preg_match($patternwithoutDateSuffix, $shippingText, $matches)) {
-                $date = $matches[0];
-                $parsedDate = date_create_from_format('jS M Y', $date);
-                $shippingDate = $parsedDate->format('d-m-Y');
-            } else {
-                $shippingDate = '';
-            }
-
-            $image = stripslashes($image);
-            if (substr($image, 0, 3) === '../') {
-                $image = substr($image, 3);
-            }
-            
-            $image = "https://www.magpiehq.com/developer-challenge/" . $image;
+            $capacity = $product->getCapacityInMb();
+            $availabilityText = $product->getavailabilityText();
+            $isAvailable = $product->getIsAvailable();
+            $shippingDate = $product->getShippingDate();
+            $image = $product->getImage();
 
             foreach($colours as $colour) {
                 $result[] = [
