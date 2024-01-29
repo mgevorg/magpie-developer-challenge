@@ -32,7 +32,7 @@ class Product
         } elseif (preg_match('/(\d+)\s?mb$/i', $this->capacity, $matches)) {
            return (int)$matches[1];
         } else {
-            return '';
+            return null;
         }
     }
     
@@ -56,7 +56,7 @@ class Product
             $parsedDate = date_create_from_format('jS M Y', $date);
             return $parsedDate->format('d-m-Y');
         } else {
-            return '';
+            return null;
         }
     }
 
